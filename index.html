@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Chatbot CLB MIT</title>
+  <style>
+    * {margin:0; padding:0; box-sizing:border-box;}
+    body, html {
+      width: 100%;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background: #eef2f3;
+    }
+
+    #container {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* Cột trái: danh sách câu hỏi */
+    #left {
+      width: 25%;
+      border-right: 1px solid #ccc;
+      background: #007BFF;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.2);
+      color: white;
+    }
+    #left h3 {
+      text-align: center;
+      margin: 10px 0;
+    }
+    #questions {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
+    #questions h4 {
+      margin: 15px 0 8px;
+      font-size: 15px;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(255,255,255,0.5);
+      padding-bottom: 3px;
+    }
+    #questions button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      background: #66B2FF;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      border-radius: 8px;
+      transition: all 0.25s ease;
+      box-shadow: 1px 2px 4px rgba(0,0,0,0.15);
+      color: black;
+    }
+    #questions button:hover {
+      background: #3399FF;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 2px 4px 6px rgba(0,0,0,0.25);
+    }
+
+    /* Cột giữa: chat bot */
+    #middle {
+      width: 50%;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #ccc;
+    }
+    #middle h3 {
+      text-align: center;
+      margin: 10px 0;
+    }
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+    }
+    .message {
+      margin: 15px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      background: #ddd;
+      flex-shrink: 0;
+    }
+    .question {
+      font-weight: bold;
+      color: #007BFF;
+    }
+    .answer {
+      margin-top: 5px;
+      color: #333;
+    }
+    .bubble {
+      background: #f1f1f1;
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 80%;
+    }
+
+    /* Hiệu ứng nhấp nháy */
+    .blink {
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0.3; }
+    }
+
+    /* Cột phải: lịch sử */
+    #right {
+      width: 25%;
+      background: #28a745;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -2px 0 6px rgba(0,0,0,0.2);
+      color: white;
+    }
+    #right h3 {
+      text-align: center;
+      margin: 10px 0;
+    }
+    #history {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
+    #history button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      background: #7DDA8F;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      border-radius: 8px;
+      transition: all 0.25s ease;
+      box-shadow: 1px 2px 4px rgba(0,0,0,0.15);
+      color: black;
+    }
+    #history button:hover {
+      background: #5cc978;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 2px 4px 6px rgba(0,0,0,0.25);
+    }
+    #clearHistory {
+      margin: 10px;
+      padding: 10px;
+      background: #ffc107;
+      border: none;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.25s ease;
+      box-shadow: 1px 2px 4px rgba(0,0,0,0.15);
+      color: black;
+    }
+    #clearHistory:hover {
+      background: #e0a800;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 2px 4px 6px rgba(0,0,0,0.25);
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <!-- Cột trái: câu hỏi -->
+    <div id="left">
+      <h3>Câu hỏi</h3>
+      <div id="questions">
+        <h4>🎯 TỔNG QUAN CÂU LẠC BỘ</h4>
+        <button onclick="askQuestion('Giới thiệu chung về CLB MIT')">Giới thiệu chung về CLB MIT</button>
+        <button onclick="askQuestion('Ý nghĩa tên gọi MIT')">Ý nghĩa tên gọi MIT</button>
+        <button onclick="askQuestion('Thông tin liên hệ')">Thông tin liên hệ</button>
+        
+        <h4>🎯 SỨ MỆNH VÀ TẦM NHÌN</h4>
+        <button onclick="askQuestion('Sứ mệnh')">Sứ mệnh</button>
+        <button onclick="askQuestion('Tầm nhìn')">Tầm nhìn</button>
+
+        <h4>🎯 MÔ HÌNH TỔ CHỨC</h4>
+        <button onclick="askQuestion('Ban điều hành')">Ban điều hành</button>
+        <button onclick="askQuestion('Các phân ban')">Các phân ban</button>
+        <button onclick="askQuestion('Thành viên trong từng ban')">Thành viên trong từng ban</button>
+
+        <h4>🎯 QUY ĐỊNH CHUNG</h4>
+        <button onclick="askQuestion('Tên gọi')">Tên gọi</button>
+        <button onclick="askQuestion('Tôn chỉ, mục đích')">Tôn chỉ, mục đích</button>
+
+        <h4>🎯 CHỨC NĂNG VÀ NHIỆM VỤ</h4>
+        <button onclick="askQuestion('Chức năng')">Chức năng</button>
+        <button onclick="askQuestion('Nhiệm vụ')">Nhiệm vụ</button>
+
+        <h4>🎯 CÔNG TÁC TÀI CHÍNH</h4>
+        <button onclick="askQuestion('Tài chính')">Tài chính</button>
+
+        <h4>🎯 KHEN THƯỞNG, KỶ LUẬT</h4>
+        <button onclick="askQuestion('Khen thưởng')">Khen thưởng</button>
+        <button onclick="askQuestion('Kỷ luật')">Kỷ luật</button>
+
+        <h4>🎯 HỘI VIÊN</h4>
+        <button onclick="askQuestion('Tiêu chuẩn Hội viên')">Tiêu chuẩn Hội viên</button>
+        <button onclick="askQuestion('Quyền lợi của Hội viên')">Quyền lợi của Hội viên.</button>
+        <button onclick="askQuestion('Nghĩa vụ của Hội viên')">Nghĩa vụ của Hội viên</button>
+        <button onclick="askQuestion('Đăng ký làm Hội viên')">Đăng ký làm Hội viên</button>
+        <button onclick="askQuestion('Rút, xóa tên khỏi CLB')">Rút, xóa tên khỏi CLB</button>
+
+        <h4>🎯 GIẤY TỜ LIÊN QUAN</h4>
+        <button onclick="askQuestion('Đơn đăng kí tham gia CLB?')">Đơn đăng kí tham gia CLB?</button>
+        <button onclick="askQuestion('Đơn xin rút khỏi CLB?')">Đơn xin rút khỏi CLB?</button>
+        <button onclick="askQuestion('Nội quy CLB MIT')">Nội quy CLB MIT</button>
+        
+        <h4>🎯 CÁCH THAM GIA CLB</h4>
+        <button onclick="askQuestion('Cách tham gia CLB MIT')">Cách tham gia CLB MIT</button>
+     </div>
+    </div>
+
+    <!-- Cột giữa: chatbot -->
+    <div id="middle">
+      <h3>Chatbot</h3>
+      <div id="chat"></div>
+    </div>
+
+    <!-- Cột phải: lịch sử -->
+    <div id="right">
+      <h3>Lịch sử</h3>
+      <div id="history"></div>
+      <button id="clearHistory" onclick="clearHistory()">Xóa lịch sử & Chat</button>
+    </div>
+  </div>
+
+  <script>
+    const chat = document.getElementById('chat');
+    const historyDiv = document.getElementById('history');
+    let history = [];
+
+    const answers = {
+      "Giới thiệu chung về CLB MIT": "Câu lạc bộ Công nghệ Thông tin trường THPT Mỹ Đình (MIT) được thành lập với  mục tiêu phát triển tư duy công nghệ theo hướng đổi mới,  sáng tạo, gần gũi và giàu cá tính của thế hệ trẻ. MIT  không chỉ tập trung vào lập trình phát triển các kỹ năng tin học mà còn góp phần khơi dậy khả năng khám phá, thử thách giới hạn bản thân, biến những kiến thức tưởng chừng khô khan trở nên sống động, thú vị và đầy màu sắc dưới lăng kính năng động, nhiệt huyết của tuổi trẻ. Thông qua các hoạt động tương tác xoay quanh những chủ đề công nghệ thông tin, MyDinh Information Technology Club hy vọng sẽ là nơi tạo điều kiện để mỗi người thể hiện góc nhìn cá nhân, rèn luyện tư duy công nghệ và phá bỏ rào cản tiếp cận tri thức.",
+      "Ý nghĩa tên gọi MIT": "Tên tiếng Việt: Câu lạc bộ Công nghệ Thông tin.Tên tiếng Anh: MIT - MyDinh Information Technology Club. MIT không chỉ là một cái tên đại diện cho CLB, nó còn mang ý nghĩa “khám phá công nghệ” – không chỉ thể hiện niềm đam mê lập trình, công nghệ mà còn đại diện cho tuổi trẻ năng động, sáng tạo và đầy nhiệt huyết.  Tin học không chỉ là nơi học hỏi kỹ năng mới, mà còn là không gian để mỗi thành viên thỏa sức sáng tạo, kết nối và truyền cảm hứng cho nhau, tràn đầy sự nhiệt tình và sức sống của thời thanh xuân.",
+      "Thông tin liên hệ": "Fanpage: https://www.facebook.com/mydinhitclub/; Gmail: mydinhitclub@gmail.com",
+
+      "Sứ mệnh": "Tạo dựng môi trường học tập, chia sẻ và giao lưu lành mạnh, nơi các thành viên cùng nhau rèn luyện kỹ năng tin học, lập trình và ứng dụng công nghệ thông tin vào đời sống, học tập. Nâng cao tư duy logic, khả năng sáng tạo trong lĩnh vực công nghệ, đồng thời bồi dưỡng năng lực giải quyết vấn đề và kỹ năng làm việc nhóm. Trang bị nền tảng kiến thức và kỹ năng số cần thiết, giúp các thành viên tự tin hội nhập, bắt kịp xu hướng chuyển đổi số và sự phát triển mạnh mẽ của kỷ nguyên công nghệ 4.0.",
+      "Tầm nhìn": "-	Thông qua các hoạt động, dự án và cuộc thi, CLB khơi dậy niềm yêu thích công nghệ và tin học, tạo cơ hội cho học sinh tiếp cận trực tiếp, rèn luyện kỹ năng qua thực hành và trải nghiệm thực tế.  -	Phối hợp với nhà trường trong việc xây dựng các chuyên đề về công nghệ, lập trình và ứng dụng tin học, mang đến nhiều hình thức học tập sáng tạo, dễ tiếp cận cho học sinh trong và ngoài trường.  -	Hình thành các nhóm nghiên cứu nhỏ, nơi học sinh có thể phát triển ý tưởng, cùng nhau sáng tạo, nghiên cứu và thử sức trong các lĩnh vực công nghệ nằm trong khả năng và sở thích của bản thân.",
+
+      "Ban điều hành": "Chủ tịch: Đoàn Phúc Uy Vũ – K5A8 – 0842522010; Phó Chủ tịch: Nguyễn Đỗ Trà My - K4A2 - 0981552706",
+      "Các phân ban": "-	Ban Chuyên Môn: +) Phân ban Office: Đảm nhận chuyên môn các nền tảng Word, Excel, PowerPoint, thiết kế slide. +) Phân ban Lập trình: Đăm nhận nhiệm vụ lập trình web cơ bản, Python, mini game, ứng dụng học tập. +) Phân ban Trí tuệ nhân tạo (AI): Tìm hiểu AI cơ bản, sử dụng AI trong học tập và sáng tạo nội dung (chatbot, AI image, AI video). +) Phân ban Multimedia: Dựng video (CapCut, Canva). -	Ban Hậu Cần: +) Phân ban Truyền thông: Thiết kế poster, quản lý fanpage câu lạc bộ, quảng bá sự kiện. +) Phân ban Tài chính – Hậu cần: Quản lý các hoạt động tài chính, lập ngân sách, quản lý quỹ và tìm các nhà tài trợ cho hoạt động của MIT.",
+      "Thành viên trong từng ban": "Cập nhật sau",
+
+      "Tên gọi": "1.	Tên Tiếng Việt:  Câu lạc bộ Công nghệ Thông tin      2.	Tên Tiếng Anh: MyDinh Information Technology Club     3.	Tên viết tắt: MIT",
+      "Tôn chỉ, mục đích": "I)	Mục đích.  -	Mục đích chung: MyDinh IT được thành lập với mục tiêu tạo ra một không gian sinh hoạt thoải mái, tự do sáng tạo và gắn kết cộng đồng học sinh có đam mê công nghệ, mong muốn rèn luyện kỹ năng tin học và khám phá sâu hơn về các lĩnh vực liên quan đến công nghệ thông tin.    -	Mục đích cụ thể: CLB hướng tới mô hình học tập gắn với tư duy công nghệ và kỹ năng số, giúp học sinh tiếp cận nhiều hơn với các phương pháp học tập hiện đại, từ đó phát triển bản thân theo hướng tích cực, sáng tạo và hội nhập với kỷ nguyên công nghệ 4.0.  II)	Tôn chỉ -	Là nơi học tập, sáng tạo và thực hành qua các dự án lập trình, thiết kế, hay ứng dụng công nghệ mà trên lớp học chính khóa thường chưa có nhiều thời gian để trải nghiệm. -	Tạo ra một môi trường sinh hoạt lành mạnh, bổ ích, góp phần làm mới suy nghĩ của mọi người, biến tin học và công nghệ – vốn tưởng chừng khô khan – trở nên thú vị, gần gũi và đầy cảm hứng.",
+      "Chức năng": "-	Câu lạc bộ Tin học sẽ cung cấp những kiến thức bổ ích, thú vị về công nghệ, lập trình và ứng dụng tin học; đồng thời tổ chức các hoạt động trải nghiệm, dự án thực hành và trưng bày sản phẩm công nghệ để thu hút học sinh học hỏi, đào sâu kiến thức. -	Góp phần quảng bá hình ảnh của CLB cũng như xây dựng định hướng phát triển theo các phương pháp học tập hiện đại, hiệu quả và lành mạnh, giúp học sinh rèn luyện kỹ năng số và khơi gợi niềm đam mê công nghệ.",
+      "Nhiệm vụ": "-	Rèn luyện kỹ năng tin học thực tiễn và sáng tạo nội dung cho thành viên. -	Tiếp cận AI – công nghệ mới theo cách đơn giản, ứng dụng vào học tập và đời sống. -	Tạo cơ hội làm việc nhóm, giao lưu, kết bạn, tạo sản phẩm chung để lưu giữ kỷ niệm. -	Câu lạc bộ hy vọng sẽ có cơ hội hỗ trợ giáo viên trong công tác chuẩn bị bài giảng Powerpoint, chỉnh sửa video, soạn thảo Word, Excel…trong khả năng của CLB, MIT cam kết sẽ giữ kín bài giảng của thầy cô. -	Câu lạc bộ  MIT sẽ hỗ trợ trường trong các hoạt động truyền thông, sự kiện phù hợp với sứ mệnh và mục tiêu câu lạc bộ đề ra.",
+      "Tài chính": "-	Câu lạc bộ hoạt động chủ yếu trên nền tảng mạng xã hội, trang thông tin truyền thông trực tuyến nên sẽ không thu quỹ CLB. -	Nếu có chi phí phát sinh sẽ thông báo cho thành viên CLB.",
+      
+      "Khen thưởng": "-	Những thành viên, nhóm thành viên có đóng góp tích cực cho câu lạc bộ được ghi nhận trong quá trình tham gia các hoạt động sẽ được ban điều hành câu lạc bộ đề xuất với BCH Đoàn trường THPT Mỹ Đình khen thưởng.",
+      "Kỷ luật": "-	Những thành viên vi phạm quy chế tùy theo mức độ sẽ bị kỷ luật từ khiển trách đến khai trừ ra khỏi câu lạc bộ được chia làm ba mức kỷ luật: +) Mức 1: Nhắc nhở  +) Mức 2: Kỷ luật trước toàn câu lạc bộ +) Mức 3: Khai trừ ra khỏi câu lạc bộ  -	Các hình thức của mức độ kỷ luật Cụ thể do ban điều hành câu lạc bộ đề ra và toàn thể câu lạc bộ thống nhất trên nguyên tắc biểu quyết dân chủ với sự đồng ý từ 50% chính thức tham gia biểu quyết trở lên",
+      
+      "Tiêu chuẩn Hội viên": "-	Là học sinh trường THPT Mỹ Đình đạt hạnh kiểm Tốt -	Không vi phạm pháp luật, nội quy nhà trường, điều lệ của câu lạc bộ.",
+      "Quyền lợi của Hội viên": "-	Được tham gia các hoạt động của CLB    -	Được đề xuất các nguyện vọng, ý kiến chính đáng; được giúp đỡ và tạo điều kiện trong quá trình tham gia sinh hoạt.   -	Được biểu dương, khen thưởng khi có những đóng góp tích cực, xuất sắc trong các hoạt động của CLB.",
+      "Nghĩa vụ của Hội viên": "-	Tôn trọng và tuân thủ điều lệ, nội quy của câu lạc bộ, giữ gìn tư cách hội viên     -	Tích cực tham gia các hoạt động của câu lạc bộ, thực hiện các nhiệm vụ của câu lạc bộ theo sự phân công của ban điều hành     -	Thực hiện công tác tuyên truyền nhằm nâng cao uy tín và mở rộng tầm ảnh hưởng của câu lạc bộ     -	Giới thiệu và phát triển hội viên mới",
+      "Đăng ký làm Hội viên": "Người muốn trở thành hội viên chính thức của câu lạc bộ phải tự nguyện làm đơn làm hồ sơ theo mẫu quy định của tổ chức. Đồng thời phải được phụ huynh xác nhận và đồng ý tham gia câu lạc bộ.",
+      "Rút, xóa tên khỏi CLB": "-	Tự nguyện làm đơn xin rút khỏi Câu lạc bộ vì lý do cá nhân.    -	Thành viên không tham gia sinh hoạt mà không có lý do chính đáng thì bị xóa tên trong danh sách hội viên.     -	Thành viên vi phạm quy định và điều lệ của tổ chức gây ảnh hưởng xấu đến uy tín của câu lạc bộ thì bị khai trừ ra khỏi câu lạc bộ.",
+
+      "Đơn đăng kí tham gia CLB?": "Liên hệ bằng Gmail: mydinhitclub@gmail.com để nhận tài liệu",
+      "Đơn xin rút khỏi CLB?": "Liên hệ bằng Gmail: mydinhitclub@gmail.com để nhận tài liệu",
+      "Nội quy CLB MIT": "Liên hệ bằng Gmail: mydinhitclub@gmail.com để nhận tài liệu",
+      "Cách tham gia CLB MIT": "Qua Link (được đăng ở fanpage Facebook) hoặc đăng kí trực tiếp qua quầy(theo đợt)",
+    };
+
+    function typeWriterEffect(element, text, speed = 30) {
+      let i = 0;
+      element.innerHTML = "";
+      function typing() {
+        if (i < text.length) {
+          element.innerHTML += text.charAt(i);
+          i++;
+          setTimeout(typing, speed);
+        }
+      }
+      typing();
+    }
+
+    function createMessage(role, text, animate=false, blink=false) {
+      const messageDiv = document.createElement("div");
+      messageDiv.classList.add("message");
+
+      const avatar = document.createElement("div");
+      avatar.classList.add("avatar");
+      avatar.innerText = role === "user" ? "👤" : "🤖";
+
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      bubble.classList.add(role === "user" ? "question" : "answer");
+
+      messageDiv.appendChild(avatar);
+      messageDiv.appendChild(bubble);
+      chat.appendChild(messageDiv);
+
+      if (role === "bot" && blink) {
+        bubble.innerText = "...";
+        bubble.classList.add("blink");
+        const delay = Math.floor(Math.random() * 2000) + 1000; // 1-3s
+        setTimeout(() => {
+          bubble.classList.remove("blink");
+          bubble.innerText = "";
+          if (animate) {
+            typeWriterEffect(bubble, text);
+          } else {
+            bubble.innerText = text;
+          }
+        }, delay);
+      } else {
+        if (animate) {
+          typeWriterEffect(bubble, text);
+        } else {
+          bubble.innerText = text;
+        }
+      }
+
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function askQuestion(question) {
+      const answer = answers[question] || "Xin lỗi, mình chưa có câu trả lời cho câu hỏi này.";
+      createMessage("user", question);
+      createMessage("bot", answer, true, true);
+      history.push({question, answer});
+      updateHistory();
+    }
+
+    function updateHistory() {
+      historyDiv.innerHTML = "";
+      history.forEach((item, index) => {
+        const btn = document.createElement("button");
+        btn.innerText = item.question;
+        btn.onclick = () => showFromHistory(index);
+        historyDiv.appendChild(btn);
+      });
+    }
+
+    function showFromHistory(index) {
+      const {question, answer} = history[index];
+      createMessage("user", question);
+      createMessage("bot", answer);
+    }
+
+    function clearHistory() {
+      history = [];
+      historyDiv.innerHTML = "";
+      chat.innerHTML = "";
+      createMessage("bot", "🤖 Xin chào, hãy chọn câu hỏi bên trái để bắt đầu!", true, true);
+    }
+
+    window.onload = () => {
+      createMessage("bot", "🤖 Xin chào, hãy chọn câu hỏi bên trái để bắt đầu!", true, true);
+    };
+  </script>
+</body>
+</html>
